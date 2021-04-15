@@ -1,6 +1,7 @@
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -16,34 +17,17 @@ public class Server {
             serverSocket = new ServerSocket(port);
         } catch (IOException e) {
             e.printStackTrace();
-            // error log
-            // port already exist
-            // throw exception
         }
         while(true){
-            //try {
-                Socket socket = serverSocket.accept();
-                fixedThreadPool.submit(new MyThread(socket));
-
-           /* } finally {
-                if(!serverSocket.isClosed()){
-                    System.out.println("error1");
-                    serverSocket.close();
-                }
-                fixedThreadPool.shutdown();
-                // wait to shutdown the thread pool
-                while(!fixedThreadPool.isShutdown()){
-                    Thread.sleep(2000);
-                }
-            }*/
-
+            Socket socket = serverSocket.accept();
+            fixedThreadPool.submit(new MyThread(socket));
         }
-
     }
 
     private static class MyThread extends Thread{
-
         private Socket socket;
+        private String receive_filePath;
+        private int fileSize;
 
         public MyThread(Socket socket){
             this.socket = socket;
@@ -52,49 +36,109 @@ public class Server {
          * write data for communication with client
          */
         public void run(){
-            // use socket
             try {
-                readFromClient(socket);
+                read(socket);
+                socket.close();
             } catch (IOException e) {
+                e.printStackTrace();
+            } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();
             }
         }
-        public static void readFromClient(Socket socket) throws IOException {
-            //3、获取输入流，并读取客户端信息
+        private void read(Socket socket) throws IOException, NoSuchAlgorithmException {
             InputStream is = socket.getInputStream();
             InputStreamReader isr =new InputStreamReader(is);
             BufferedReader br =new BufferedReader(isr);
-            String info =null;
-            int count=0;
-            FileOutputStream out=null;
-            while((info=br.readLine())!=null){
-                System.out.println("Hello,我是服务器，客户端说："+info);
-                String path=null;
-                String base="G:/receiveFile/";
-                String filePath=null;
+            byte[] buffer = new byte[128];
+            is.read(buffer);
 
-                if(count==0){
-                    path=info;
-                    String[] args=path.split("\\\\");
-                    String fileName=args[args.length-1];
-                    filePath=base.concat(fileName);
-                    System.out.println("filePath "+filePath+"\n");
-                    File file=new File(filePath);
-                    out = new FileOutputStream(filePath);
-                    count++;
-                    continue;
-                }
-                out.write(info.getBytes());
-                count++;
+            String info =new String(buffer);
+            String[] args=info.split(" ");
+
+            String path = null;
+            String base = "G:/receiveFile/";
+            path = args[0];
+            fileSize=Integer.parseInt(args[1].substring(0,args[1].length()));
+            String[] args1 = path.split("\\\\");
+            String fileName = args1[args1.length - 1];
+
+            String temp= base.concat(fileName);
+            receive_filePath=temp.substring(0,temp.length());
+            if(Long.parseLong(args[2])>0){
+                File temp_file=new File(base+"temp_"+fileName);
+
             }
+            OutputStream ous=socket.getOutputStream();
+            PrintWriter pw=new PrintWriter(ous);
+            pw.write("ok\n");
+            pw.flush();
+            ous.flush();
+            FileOutputStream out=new FileOutputStream(receive_filePath);
+            int receive_size=0;
+            int readSize=0;
+            while((receive_size<fileSize) && ((readSize=is.read(buffer))!=-1)){
+                receive_size+=readSize;
+                System.out.println("receive_size "+receive_size);
+                out.write(buffer,0,readSize);
+                pw.write(readSize+"\n");
+                pw.flush();
+                ous.flush();
+            }
+            String md5=Md5CaculateUtil.getFileMD5(receive_filePath);
+            pw.write(md5+"\n");
+            pw.flush();
+            ous.flush();
             out.close();
-            socket.shutdownInput();//关闭输入流
-            // 4、获取输出流，响应客户端的请求
-
             br.close();
             isr.close();
             is.close();
-            socket.close();
+        }
+
+        private boolean readFileNameAndSize(Socket socket) throws IOException {
+            boolean t=true;
+            InputStream is = socket.getInputStream();
+            InputStreamReader isr =new InputStreamReader(is);
+            BufferedReader br =new BufferedReader(isr);
+            String info =br.readLine();
+            String[] args=info.split(" ");
+            String path = null;
+            String base = "G:/receiveFile/";
+            path = args[0];
+            fileSize=95;
+            String[] args1 = path.split("\\\\");
+            String fileName = args1[args1.length - 1];
+            //System.out.println("fileName "+fileName);
+            String temp= base.concat(fileName);
+            receive_filePath=temp.substring(0,temp.length());
+            //System.out.println("Hello,我是服务器，客户端说：" + info.split(" ")[0]+"\n");
+            System.out.println("filePath " + receive_filePath + "\n");
+            br.close();
+            isr.close();
+            //is.close();
+            return t;
+        }
+
+        public void readFromClient(Socket socket) throws IOException {
+            InputStream is = socket.getInputStream();
+            System.out.println("receice_filePath "+receive_filePath+" InputStream Size "+is.available());
+            InputStreamReader isr =new InputStreamReader(is);
+            BufferedReader br =new BufferedReader(isr);
+            FileOutputStream out=new FileOutputStream(receive_filePath);
+            //byte[] buffer = new byte[4096 * 5];
+            byte[] buffer = new byte[128];
+            int receive_size=0;
+            int readSize=0;
+            DataInputStream dis = new DataInputStream(new BufferedInputStream(is));
+            while((readSize=dis.read(buffer))!=-1){
+                receive_size+=readSize;
+                out.write(buffer,0,readSize);
+            }
+            out.close();
+            socket.shutdownInput();
+            br.close();
+            isr.close();
+            //is.close();
+            //socket.close();
         }
         private static boolean deleteFile(String absolutePath) {
             boolean t=false;
