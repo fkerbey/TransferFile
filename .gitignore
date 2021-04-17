@@ -2,4 +2,4 @@
 **/*.log
 TransferFile.iml
 /.idea/
-/out/
+/out/*
