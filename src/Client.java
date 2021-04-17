@@ -1,4 +1,4 @@
-﻿import java.io.*;
+import java.io.*;
 import java.net.Socket;
 import java.security.NoSuchAlgorithmException;
 import java.util.LinkedList;
