@@ -56,7 +56,7 @@ public class Server {
             String[] args=info.split(" ");
 
             String path = null;
-            String base = "G:/receiveFile/";
+            String base = "C:\\Users\\dell\\Desktop\\BDMS\\TransferFile\\receive\\";
             path = args[0];
             fileSize=Integer.parseInt(args[1].substring(0,args[1].length()));
             String[] args1 = path.split("\\\\");

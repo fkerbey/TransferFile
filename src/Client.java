@@ -11,9 +11,10 @@ import java.util.concurrent.Executors;
  */
 public class Client {
 
-    private static Long timeInterval;
-    private static Long startPoint;
+    private static Long timeInterval = 60000L;
+    private static Long startPoint = 0L;
     private static boolean _switch;
+    private static Long curTime = 100000L; //10:00
 
     public static void setTimeInterval(Long timeInterval) {
         Client.timeInterval = timeInterval;
@@ -28,39 +29,42 @@ public class Client {
     }
 
     public static void main(String[] args) throws IOException {
-        SettingThread settingThread=new SettingThread();
-        settingThread.start();
-        TimingThread timingThread=new TimingThread(Long.valueOf(0),Long.valueOf(0),false);
-        timingThread.start();
-        TransferThread transferThread=new TransferThread();
-        transferThread.run();
-    }
-    private static class TimingThread extends Thread{
-        public TimingThread(Long startPoint,Long timeInterval,boolean _switch){
-            Client.startPoint=startPoint;
-            Client.timeInterval=timeInterval;
-            Client._switch=_switch;
-        }
-        public void run(){
-            Timer timer=new Timer();
-            timer.schedule(new TransferThread(),1000L,60000L);
-        }
-    }
-    private static class SettingThread extends Thread{
-        public void run(){
-            while(true){
-                Scanner in = new Scanner(System.in);
-                String input=in.nextLine();
+        Scanner in = new Scanner(System.in);
+        Timer timer=new Timer();
+        timer.schedule(new TransferThread(),startPoint,timeInterval);
+
+        while (true) {
+            try {
+                System.out.print("input a command: ");
+                String cmd = in.nextLine();
+                if (cmd.equals("set")) {
+                    System.out.print("input start point: ");
+                    startPoint = in.nextLong();
+                    System.out.print("input time interval: ");
+                    timeInterval = in.nextLong();
+                    timer.cancel();
+                    timer.purge();
+                    timer = new Timer();
+                    timer.schedule(new TransferThread(), startPoint, timeInterval);
+                } else if (cmd.equals("transfer")) {
+                    Thread thread = new Thread(new TransferThread());
+                    thread.start();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
+
     }
+
     private static class TransferThread extends java.util.TimerTask{
         public TransferThread(){
 
         }
         public void run() {
+            System.out.println(System.currentTimeMillis() + "  transfer a file");
             try {
-                writeFilesToServer("G:\\testFile");
+                writeFilesToServer("C:\\Users\\dell\\Desktop\\BDMS\\TransferFile\\tmp");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -129,9 +133,6 @@ public class Client {
                 bytePosition+=Long.parseLong(temp.split("\n")[0]);
                 System.out.println("bytePosition "+bytePosition);
             }
-            //os.close();
-            //socket.close();
-            //in.close();
             return t;
         }
         private static boolean deleteFile(String absolutePath) {
