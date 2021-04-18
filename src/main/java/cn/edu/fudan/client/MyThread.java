@@ -1,5 +1,6 @@
 package cn.edu.fudan.client;
 
+import cn.edu.fudan.Configure.ClientConfigure;
 import cn.edu.fudan.common.Md5CaculateUtil;
 
 import java.io.*;
@@ -15,6 +16,7 @@ public class MyThread extends Thread {
     private String absolutePath;
     private String MD5;
     private Long bytePosition;
+
     public MyThread(Socket socket, String absolutePath,Long bytePosition) {
         this.socket = socket;
         this.absolutePath = absolutePath.substring(0, absolutePath.length());
@@ -25,12 +27,12 @@ public class MyThread extends Thread {
         try {
             sendFileNameAndLength(absolutePath);
             InputStream ins = socket.getInputStream();
-            byte[] input = new byte[1024];
+            byte[] input = new byte[Math.toIntExact(ClientConfigure.fileSegmentSize)];
             ins.read(input);
             boolean t = writeFileToServer(absolutePath);
             System.out.println(new Date().toString() + " ------ finish send file\n");
             ins.read(input);
-            //System.out.println(MD5+" "+new String(input)+"\n");
+            //System.out.println("check md5 "+MD5+" "+new String(input)+"\n");
             if (t) {
                 //deleteFile(file2.getAbsolutePath());
             }
@@ -58,20 +60,20 @@ public class MyThread extends Thread {
         OutputStream os = socket.getOutputStream();
         File file = new File(absolutePath);
         FileInputStream in = new FileInputStream(file);
-        byte[] buffer = new byte[16];
+        byte[] buffer = new byte[Math.toIntExact(ClientConfigure.fileSegmentSize)];
         int size = 0;
         bytePosition= Long.valueOf(0);
         while ((size = in.read(buffer)) != -1) {
-            System.out.println("客户端发送数据包，大小为" + size);
+            //System.out.println("客户端发送数据包，大小为" + size);
             os.write(buffer, 0, size);
             os.flush();
             InputStream ins = socket.getInputStream();
-            byte[] readAccept=new byte[16];
+            byte[] readAccept=new byte[Math.toIntExact(ClientConfigure.fileSegmentSize)];
             ins.read(readAccept);
             String temp=new String(readAccept);
-            System.out.println("temp "+temp.split("\n")[0]);
+            //System.out.println("temp "+temp.split("\n")[0]);
             bytePosition+=Long.parseLong(temp.split("\n")[0]);
-            System.out.println("bytePosition "+bytePosition);
+            //System.out.println("bytePosition "+bytePosition);
         }
         return t;
     }

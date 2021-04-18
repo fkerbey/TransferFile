@@ -13,7 +13,7 @@ public class GUIPrintStream extends PrintStream {
     private JTextComponent component;
     private StringBuffer sb = new StringBuffer();
 
-    public GUIPrintStream(OutputStream out, JTextComponent component) {
+    GUIPrintStream(OutputStream out, JTextComponent component) {
         super(out);
         this.component = component;
     }

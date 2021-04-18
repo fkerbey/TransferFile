@@ -1,8 +1,13 @@
 package cn.edu.fudan.server;
 
+import cn.edu.fudan.Configure.ServerConfigure;
+
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -12,11 +17,12 @@ import java.util.concurrent.Executors;
 public class Server {
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        int port = 10086;
+        // 读服务器端配置文件
+        ServerConfigure.loadProperties();
         ExecutorService fixedThreadPool = Executors.newFixedThreadPool(5);
         ServerSocket serverSocket = null;
         try {
-            serverSocket = new ServerSocket(port);
+            serverSocket = new ServerSocket(ServerConfigure.port);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -25,5 +31,4 @@ public class Server {
             fixedThreadPool.submit(new MyThread(socket));
         }
     }
-
 }

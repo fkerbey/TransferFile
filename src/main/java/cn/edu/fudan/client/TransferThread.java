@@ -1,5 +1,7 @@
 package cn.edu.fudan.client;
 
+import cn.edu.fudan.Configure.ClientConfigure;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
@@ -19,14 +21,14 @@ public class TransferThread extends java.util.TimerTask {
     public void run() {
         System.out.println(new Date().toString() + " ------ transfer a file");
         try {
-            writeFilesToServer("C:\\Users\\dell\\Desktop\\BDMS\\TransferFile\\tmp");
+            //如果文件夹中已经存在文件，则不向tsfiledb请求文件列表，不继续执行
+            writeFilesToServer(ClientConfigure.snapshootDirectory);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public static void writeFilesToServer(String path) throws IOException {
-        int port = 10086;
         ExecutorService fixedThreadPool = Executors.newFixedThreadPool(5);
         int fileNum = 0, folderNum = 0;
         File file = new File(path);
@@ -40,7 +42,7 @@ public class TransferThread extends java.util.TimerTask {
                     folderNum++;
                 } else {
                     //System.out.println("文件:" + file2.getAbsolutePath());
-                    Socket socket = new Socket("localhost", 10086);//1024-65535的某个端口
+                    Socket socket = new Socket(ClientConfigure.server_address, ClientConfigure.port);//1024-65535的某个端口
                     fixedThreadPool.submit(new MyThread(socket, file2.getAbsolutePath(), (long) 0));
                     fileNum++;
                 }
@@ -48,6 +50,5 @@ public class TransferThread extends java.util.TimerTask {
             fixedThreadPool.shutdown();
         }
     }
-
 
 }
