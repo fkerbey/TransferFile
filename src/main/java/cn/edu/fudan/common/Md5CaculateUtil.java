@@ -35,7 +35,7 @@ public class Md5CaculateUtil {
             e.printStackTrace();
         }
         md5=toHexString(MD5.digest());
-        System.out.println(absolutePath+" "+md5+"\n");
+        //System.out.println(absolutePath+" "+md5+"\n");
         return md5;
     }
 }
