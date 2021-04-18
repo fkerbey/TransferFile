@@ -155,7 +155,7 @@ public class Client {
 
         }
         public void run() {
-            System.out.println(System.currentTimeMillis() + "  transfer a file");
+            System.out.println(System.currentTimeMillis() + "  transfer files");
             try {
                 //如果文件夹中已经存在文件，则不向tsfiledb请求文件列表，不继续执行
                 writeFilesToServer(snapshootDirectory);
