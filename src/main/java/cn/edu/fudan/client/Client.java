@@ -14,7 +14,7 @@ import java.util.Timer;
  * Created by lylw on 2017/7/17.
  */
 public class Client {
-    private static Long timeInterval = 10000L;
+    private static Long timeInterval = 60000L;
     private static Long delay_time = 0L;
     private static boolean _switch;
     private static Long startTime ; //10:00
@@ -78,6 +78,9 @@ public class Client {
         thread1.start();
         timer=new Timer();
         startTime=System.currentTimeMillis()+delay_time;
+
+        //TransferThread transferThread = new TransferThread();
+        //transferThread.run();
         //System.out.println("log--------------------------------------------------------------");
         //timerStart(delay_time,timeInterval);
         //timer.schedule(new TransferThread(),delay_time,timeInterval);

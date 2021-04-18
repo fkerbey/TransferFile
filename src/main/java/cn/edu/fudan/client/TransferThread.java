@@ -21,6 +21,7 @@ public class TransferThread extends java.util.TimerTask {
     }
     public void run() {
         System.out.println(new Date().toString() + " ------ transfer files");
+
         try {
             //如果文件夹中已经存在文件，则不向tsfiledb请求文件列表，不继续执行
             writeFilesToServer(ClientConfigure.snapshootDirectory);
@@ -47,6 +48,7 @@ public class TransferThread extends java.util.TimerTask {
             files = file.listFiles();
             for (File file2 : files) {
                 //System.out.println("文件:" + file2.getAbsolutePath());
+                System.out.println(new Date().toString() + " ------ transfer a file " + file2.getName());
                 Socket socket = new Socket(ClientConfigure.server_address, ClientConfigure.port);//1024-65535的某个端口
                 fixedThreadPool.submit(new MyThread(socket, file2.getAbsolutePath(), filemap.get(file2.getAbsolutePath())));
                 fileNum++;

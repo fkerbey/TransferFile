@@ -6,6 +6,7 @@ import cn.edu.fudan.common.Md5CaculateUtil;
 import java.io.*;
 import java.net.Socket;
 import java.security.NoSuchAlgorithmException;
+import java.util.Date;
 
 /**
  * Created by dell on 2017/7/24.
@@ -26,14 +27,16 @@ public class MyThread extends Thread {
         try {
             sendFileNameAndLength(absolutePath);
             InputStream ins = socket.getInputStream();
-            byte[] input = new byte[Math.toIntExact(ClientConfigure.fileSegmentSize)];
+            byte[] input = new byte[1024];
             ins.read(input);
             boolean t = writeFileToServer(absolutePath);
-            //System.out.println(new Date().toString() + " ------ finish send file\n");
+
+            System.out.println(new Date().toString() + " ------ finish send file " + new File(absolutePath).getName());
+
             ins.read(input);
             //System.out.println("check md5 "+MD5+" "+new String(input)+"\n");
             if (t) {
-                //deleteFile(file2.getAbsolutePath());
+                //deleteFile(absolutePath);
             }
         } catch (IOException e) {
             e.printStackTrace();
