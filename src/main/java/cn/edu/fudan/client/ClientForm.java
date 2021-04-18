@@ -1,8 +1,11 @@
 package cn.edu.fudan.client;
 
+import cn.edu.fudan.Configure.ClientConfigure;
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileNotFoundException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Timer;
@@ -21,11 +24,12 @@ public class ClientForm extends javax.swing.JFrame {
     private JTextField intervalTextField;
     private JButton submitButton;
 
-    private static Long timeInterval = 5000L;
+    private static Long timeInterval = 60000L;
     private static Long startPoint = 0L;
     java.util.Timer timer = new java.util.Timer();
 
     public ClientForm() {
+        offButton.setEnabled(false);
         System.setOut(new GUIPrintStream(System.out, textArea1));
         // manual transfer file
         transferButton.addActionListener(new ActionListener() {
@@ -41,11 +45,11 @@ public class ClientForm extends javax.swing.JFrame {
             public void actionPerformed(ActionEvent e) {
                 timer.cancel();
                 timer.purge();
+                timer = new java.util.Timer();
+                timer.schedule(new TransferThread(),startPoint,timeInterval);
                 System.out.println(new Date().toString() + " ------ start a new timing transfer, " +
                         "delay is " + (startPoint/1000) + " s, "+
                         "period is " + (timeInterval/1000) + " s");
-                timer = new java.util.Timer();
-                timer.schedule(new TransferThread(),startPoint,timeInterval);
                 startButton.setEnabled(false);
                 offButton.setEnabled(true);
             }
@@ -76,7 +80,7 @@ public class ClientForm extends javax.swing.JFrame {
                     } else {
                         startPoint = time.getTime() - new Date().getTime();
                         timeInterval = cachedTimeInterval;
-                        System.out.println(new Date().toString() + " ------  Success: update the parameter of timing task!");
+                        System.out.println(new Date().toString() + " ------ Success: update the parameter of timing task!");
                         if (!startButton.isEnabled()) {
                             // if timing task is running
                             timer.cancel();
@@ -96,7 +100,9 @@ public class ClientForm extends javax.swing.JFrame {
         });
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws FileNotFoundException {
+        //读取配置文件，设置配置项
+        ClientConfigure.loadProperties();
         JFrame frame = new JFrame("ClientForm");
         frame.setContentPane(new ClientForm().panel1);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
