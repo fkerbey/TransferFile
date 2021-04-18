@@ -5,7 +5,7 @@ import cn.edu.fudan.common.Md5CaculateUtil;
 import java.io.*;
 import java.net.Socket;
 import java.security.NoSuchAlgorithmException;
-import java.util.Properties;
+import java.util.Date;
 
 /**
  * Created by dell on 2017/7/24.
@@ -15,33 +15,22 @@ public class MyThread extends Thread {
     private String absolutePath;
     private String MD5;
     private Long bytePosition;
-    private static Long fileSegmentSize;
-
     public MyThread(Socket socket, String absolutePath,Long bytePosition) {
         this.socket = socket;
         this.absolutePath = absolutePath.substring(0, absolutePath.length());
         this.bytePosition=bytePosition;
-
-        try {
-            InputStream inputStream = new FileInputStream("settings.properties");
-            Properties p = new Properties();
-            p.load(inputStream);
-            fileSegmentSize=Long.parseLong(p.getProperty("FILE_SEGMENT_SIZE"));
-        } catch (IOException e1) {
-            e1.printStackTrace();
-        }
     }
 
     public void run() {
         try {
             sendFileNameAndLength(absolutePath);
             InputStream ins = socket.getInputStream();
-            byte[] input = new byte[Math.toIntExact(fileSegmentSize)];
+            byte[] input = new byte[1024];
             ins.read(input);
             boolean t = writeFileToServer(absolutePath);
-            //System.out.println("finish send file\n");
+            System.out.println(new Date().toString() + " ------ finish send file\n");
             ins.read(input);
-            //System.out.println("check md5 "+MD5+" "+new String(input)+"\n");
+            //System.out.println(MD5+" "+new String(input)+"\n");
             if (t) {
                 //deleteFile(file2.getAbsolutePath());
             }
@@ -69,20 +58,20 @@ public class MyThread extends Thread {
         OutputStream os = socket.getOutputStream();
         File file = new File(absolutePath);
         FileInputStream in = new FileInputStream(file);
-        byte[] buffer = new byte[Math.toIntExact(fileSegmentSize)];
+        byte[] buffer = new byte[16];
         int size = 0;
         bytePosition= Long.valueOf(0);
         while ((size = in.read(buffer)) != -1) {
-            //System.out.println("客户端发送数据包，大小为" + size);
+            System.out.println("客户端发送数据包，大小为" + size);
             os.write(buffer, 0, size);
             os.flush();
             InputStream ins = socket.getInputStream();
-            byte[] readAccept=new byte[Math.toIntExact(fileSegmentSize)];
+            byte[] readAccept=new byte[16];
             ins.read(readAccept);
             String temp=new String(readAccept);
-            //System.out.println("temp "+temp.split("\n")[0]);
+            System.out.println("temp "+temp.split("\n")[0]);
             bytePosition+=Long.parseLong(temp.split("\n")[0]);
-            //System.out.println("bytePosition "+bytePosition);
+            System.out.println("bytePosition "+bytePosition);
         }
         return t;
     }
