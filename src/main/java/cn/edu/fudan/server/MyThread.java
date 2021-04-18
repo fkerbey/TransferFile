@@ -57,9 +57,9 @@ public class MyThread extends Thread {
         }
         FileInputStream fis=new FileInputStream(receive_file);
         File temp_file=new File(ServerConfigure.storage_directory+"temp_"+fileName);
+        FileOutputStream fos= new FileOutputStream(temp_file);
 
         byte[] copyfile=new byte[16];
-        FileOutputStream fos= new FileOutputStream(temp_file);
 
         int read=0;
         int total_read=0;
@@ -91,7 +91,7 @@ public class MyThread extends Thread {
         int readSize=0;
         while((receive_size<fileSize) && ((readSize=is.read(buffer))!=-1)){
             receive_size+=readSize;
-            System.out.println("receive_size "+receive_size);
+            //System.out.println("receive_size "+receive_size);
             fos.write(buffer,0,readSize);
             pw.write(readSize+"\n");
             pw.flush();

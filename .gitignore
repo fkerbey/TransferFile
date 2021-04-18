@@ -23,5 +23,3 @@ TransferFile.iml
 # Maven
 log/
 target/
-
-settings.properties

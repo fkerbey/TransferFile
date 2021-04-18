@@ -6,7 +6,6 @@ import cn.edu.fudan.common.Md5CaculateUtil;
 import java.io.*;
 import java.net.Socket;
 import java.security.NoSuchAlgorithmException;
-import java.util.Date;
 
 /**
  * Created by dell on 2017/7/24.
@@ -27,10 +26,10 @@ public class MyThread extends Thread {
         try {
             sendFileNameAndLength(absolutePath);
             InputStream ins = socket.getInputStream();
-            byte[] input = new byte[1024];
+            byte[] input = new byte[Math.toIntExact(ClientConfigure.fileSegmentSize)];
             ins.read(input);
             boolean t = writeFileToServer(absolutePath);
-            System.out.println(new Date().toString() + " ------ finish send file " + new File(absolutePath).getName());
+            //System.out.println(new Date().toString() + " ------ finish send file\n");
             ins.read(input);
             //System.out.println("check md5 "+MD5+" "+new String(input)+"\n");
             if (t) {
@@ -64,7 +63,7 @@ public class MyThread extends Thread {
         int size = 0;
         bytePosition= Long.valueOf(0);
         while ((size = in.read(buffer)) != -1) {
-            //System.out.println("客户端发送数据包，大小为" + size);
+            System.out.println("客户端发送数据包，大小为" + size);
             os.write(buffer, 0, size);
             os.flush();
             InputStream ins = socket.getInputStream();
@@ -73,8 +72,10 @@ public class MyThread extends Thread {
             String temp=new String(readAccept);
             //System.out.println("temp "+temp.split("\n")[0]);
             bytePosition+=Long.parseLong(temp.split("\n")[0]);
-            //System.out.println("bytePosition "+bytePosition);
+            TransferThread.setMap(absolutePath,bytePosition);
+            System.out.println("bytePosition "+bytePosition);
         }
+        in.close();
         return t;
     }
     private static boolean deleteFile(String absolutePath) {
