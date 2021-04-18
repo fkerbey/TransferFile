@@ -5,6 +5,7 @@ import cn.edu.fudan.common.Md5CaculateUtil;
 import java.io.*;
 import java.net.Socket;
 import java.security.NoSuchAlgorithmException;
+import java.util.Properties;
 
 /**
  * Created by dell on 2017/7/24.
@@ -13,9 +14,21 @@ public class MyThread extends Thread {
     private Socket socket;
     private String receive_filePath;
     private int fileSize;
+    private String storage_directory;
 
     public MyThread(Socket socket){
         this.socket = socket;
+        InputStream inputStream = null;
+        try {
+            inputStream = new FileInputStream("settings.properties");
+            Properties p = new Properties();
+            p.load(inputStream);
+            storage_directory=p.getProperty("STORAGE_DIRECTORY");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
     /**
      * write data for communication with main.java.cn.edu.fudan.client
@@ -41,13 +54,12 @@ public class MyThread extends Thread {
         String[] args=info.split(" ");
 
         String path = null;
-        String base = "G:\\receiveFile\\";
         path = args[0];
         fileSize=Integer.parseInt(args[1].substring(0,args[1].length()));
         String[] args1 = path.split("\\\\");
         String fileName = args1[args1.length - 1];
 
-        String temp= base.concat(fileName);
+        String temp= storage_directory.concat(fileName);
         receive_filePath=temp.substring(0,temp.length());
         Long startPosition= Long.parseLong(args[2]);
         //System.out.println("startPosition");
@@ -56,7 +68,7 @@ public class MyThread extends Thread {
             receive_file.createNewFile();
         }
         FileInputStream fis=new FileInputStream(receive_file);
-        File temp_file=new File(base+"temp_"+fileName);
+        File temp_file=new File(storage_directory+"temp_"+fileName);
 
         byte[] copyfile=new byte[16];
         FileOutputStream fos= new FileOutputStream(temp_file);

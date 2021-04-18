@@ -3,10 +3,12 @@ package cn.edu.fudan.client;
 import java.io.*;
 import java.net.Socket;
 import java.util.LinkedList;
+import java.util.Properties;
 import java.util.Scanner;
 import java.util.Timer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
 /**
  * Created by lylw on 2017/7/17.
  */
@@ -16,16 +18,79 @@ public class Client {
     private static Long delay_time = 0L;
     private static boolean _switch;
     private static Long startTime ; //10:00
+    private static int port;
+    private static String server_address;
+    private static String snapshootDirectory;
+
+    public static Long getTimeInterval() {
+        return timeInterval;
+    }
 
     public static void setTimeInterval(Long timeInterval) {
         Client.timeInterval = timeInterval;
+    }
+
+    public static Long getDelay_time() {
+        return delay_time;
+    }
+
+    public static void setDelay_time(Long delay_time) {
+        Client.delay_time = delay_time;
+    }
+
+    public static boolean is_switch() {
+        return _switch;
     }
 
     public static void set_switch(boolean _switch) {
         Client._switch = _switch;
     }
 
+    public static Long getStartTime() {
+        return startTime;
+    }
+
+    public static void setStartTime(Long startTime) {
+        Client.startTime = startTime;
+    }
+
+    public static int getPort() {
+        return port;
+    }
+
+    public static void setPort(int port) {
+        Client.port = port;
+    }
+
+    public static String getServer_address() {
+        return server_address;
+    }
+
+    public static void setServer_address(String server_address) {
+        Client.server_address = server_address;
+    }
+
+    public static String getSnapshootDirectory() {
+        return snapshootDirectory;
+    }
+
+    public static void setSnapshootDirectory(String snapshootDirectory) {
+        Client.snapshootDirectory = snapshootDirectory;
+    }
+
     public static void main(String[] args) throws IOException {
+        //读取配置文件，设置配置项
+        InputStream inputStream = new FileInputStream("settings.properties");
+        Properties p = new Properties();
+        try {
+            p.load(inputStream);
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+        port=Integer.parseInt(p.getProperty("CLIENT_PORT"));
+        server_address=p.getProperty("SERVER_ADDRESS");
+        snapshootDirectory=p.getProperty("SNAPSHOOT_DIRECTORY");
+        //传送文件
         Scanner in = new Scanner(System.in);
         Timer timer=new Timer();
         startTime=System.currentTimeMillis()+delay_time;
@@ -93,7 +158,7 @@ public class Client {
             System.out.println(System.currentTimeMillis() + "  transfer a file");
             try {
                 //如果文件夹中已经存在文件，则不向tsfiledb请求文件列表，不继续执行
-                writeFilesToServer("G:\\testFile\\");
+                writeFilesToServer(snapshootDirectory);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -102,7 +167,6 @@ public class Client {
 
 
     public static void writeFilesToServer(String path) throws IOException {
-        int port = 10086;
         ExecutorService fixedThreadPool = Executors.newFixedThreadPool(5);
         int fileNum = 0, folderNum = 0;
         File file = new File(path);
@@ -116,7 +180,7 @@ public class Client {
                     folderNum++;
                 } else {
                     //System.out.println("文件:" + file2.getAbsolutePath());
-                    Socket socket = new Socket("localhost", 10086);//1024-65535的某个端口
+                    Socket socket = new Socket(server_address, port);//1024-65535的某个端口
                     fixedThreadPool.submit(new MyThread(socket, file2.getAbsolutePath(), (long) 0));
                     fileNum++;
                 }
