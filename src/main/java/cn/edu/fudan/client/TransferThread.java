@@ -45,13 +45,13 @@ public class TransferThread extends java.util.TimerTask {
         System.out.print(path+"\n");
         int count=0;
         while (file.exists() && files.length>0) {
-            System.out.println("count "+count);
+            //System.out.println("count "+count);
             ExecutorService fixedThreadPool = Executors.newFixedThreadPool(5);
             LinkedList<File> list = new LinkedList<File>();
             files = file.listFiles();
             for (File file2 : files) {
                 //System.out.println("文件:" + file2.getAbsolutePath());
-                //System.out.println(new Date().toString() + " ------ transfer a file " + file2.getName());
+                System.out.println(new Date().toString() + " ------ transfer a file " + file2.getName());
                 Socket socket = new Socket(ClientConfigure.server_address, ClientConfigure.port);//1024-65535的某个端口
                 fixedThreadPool.submit(new MyThread(socket, file2.getAbsolutePath(), filemap.get(file2.getAbsolutePath())));
                 fileNum++;
