@@ -2,11 +2,7 @@ package cn.edu.fudan.client;
 
 import cn.edu.fudan.Configure.ClientConfigure;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.Socket;
 import java.util.Scanner;
 import java.util.Timer;
 
@@ -18,16 +14,7 @@ public class Client {
     private static Long delay_time = 0L;
     private static boolean _switch;
     private static Long startTime ; //10:00
-    private static boolean changeSet=false;
     private static Timer timer;
-
-    public static boolean isChangeSet() {
-        return changeSet;
-    }
-
-    public static void setChangeSet(boolean changeSet) {
-        Client.changeSet = changeSet;
-    }
 
     public static Long getTimeInterval() {
         return timeInterval;
@@ -65,26 +52,18 @@ public class Client {
         timer.schedule(new TransferThread(),delay_time,timeInterval);
     }
 
-    public static void timerStop(){
-        timer.cancel();
-        timer.purge();
-    }
+
     public static void main(String[] args) throws IOException {
         //读取配置文件，设置配置项
         ClientConfigure.loadProperties();
         //传送文件
         Scanner in = new Scanner(System.in);
-        Thread thread1 = new Thread(new TransferThread());
-        thread1.start();
         timer=new Timer();
         startTime=System.currentTimeMillis()+delay_time;
-
-        //TransferThread transferThread = new TransferThread();
-        //transferThread.run();
-        //System.out.println("log--------------------------------------------------------------");
-        //timerStart(delay_time,timeInterval);
-        //timer.schedule(new TransferThread(),delay_time,timeInterval);
-        //System.out.println("-----------------------------------------------------------------");
+        timer.schedule(new TransferThread(),delay_time,timeInterval);
+        //Thread thread1=new Thread(new TransferThread());
+        //thread1.start();
+        //等待用户输入，设置传送任务
         while (true) {
             try {
                 System.out.print("input a command:\n");
@@ -95,22 +74,17 @@ public class Client {
                     startTime=System.currentTimeMillis()+delay_time;
                     System.out.print("input time interval: ");
                     timeInterval = in.nextLong();
-                    setChangeSet(true);
 
                     timer.cancel();
                     timer.purge();
                     timer = new Timer();
-                    //System.out.println("log--------------------------------------------------------------");
-                    //timer.schedule(new TransferThread(), delay_time, timeInterval);
-                    //System.out.println("-----------------------------------------------------------------");
+                    timer.schedule(new TransferThread(), delay_time, timeInterval);
                 } else if (cmd.equals("transfer now")) {
-                    //System.out.println("log--------------------------------------------------------------");
                     Thread thread = new Thread(new TransferThread());
                     thread.start();
-                    //System.out.println("-----------------------------------------------------------------");
                 }
                 else if(cmd.equals("switch")){
-                    System.out.print("set on(1) or off(0):");
+                    System.out.print("set timing task on(1) or off(0):");
                     int getbool=in.nextInt();
                     _switch=(getbool==0)?false:true;
                     if(_switch){
@@ -121,12 +95,10 @@ public class Client {
                         while(startTime<nowtime){
                             startTime+=timeInterval;
                         }
-                        //startTime=System.currentTimeMillis()+delay_time;
-                        //System.out.println("log--------------------------------------------------------------");
+
                         delay_time=startTime-System.currentTimeMillis();
                         timer=new Timer();
                         timer.schedule(new TransferThread(),delay_time,timeInterval);
-                        //System.out.println("-----------------------------------------------------------------");
                     }
                     else if(!_switch){
                         timer.cancel();
@@ -137,24 +109,5 @@ public class Client {
                 e.printStackTrace();
             }
         }
-
     }
-
-    public void readFromServer() throws IOException {
-        Socket socket = new Socket("localhost", 10086);
-        InputStream is = socket.getInputStream();
-        InputStreamReader isr = new InputStreamReader(is);
-        BufferedReader br = new BufferedReader(isr);
-        String info = null;
-
-        while ((info = br.readLine()) != null) {
-            //System.out.println("Hello,我是客户端，服务器说：" + info);
-        }
-        socket.shutdownInput();
-        socket.close();
-        br.close();
-        isr.close();
-        is.close();
-    }
-
 }

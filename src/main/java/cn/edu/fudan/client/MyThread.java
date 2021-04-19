@@ -32,7 +32,7 @@ public class MyThread extends Thread {
             boolean t = writeFileToServer(absolutePath);
             System.out.println(new Date().toString() + " ------ finish send file " + new File(absolutePath).getName());
             ins.read(input);
-            //System.out.println("check md5 "+MD5+" "+new String(input)+"\n");
+            t=t && MD5.equals(new String(input).split("\n")[0]);
             if (t) {
                 deleteFile(absolutePath);
             }
@@ -43,15 +43,13 @@ public class MyThread extends Thread {
         }
     }
 
-    private boolean sendFileNameAndLength(String absolutePath) throws IOException {
-        boolean t = true;
+    private void sendFileNameAndLength(String absolutePath) throws IOException {
         File file = new File(absolutePath);
         OutputStream os = socket.getOutputStream();
         PrintWriter pw = new PrintWriter(os);
         pw.write(absolutePath + " " + file.length() + " "+bytePosition+" ");
         pw.flush();
         os.flush();
-        return t;
     }
 
     private boolean writeFileToServer(String absolutePath) throws IOException, NoSuchAlgorithmException {
@@ -68,14 +66,13 @@ public class MyThread extends Thread {
             os.write(buffer, 0, size);
             os.flush();
             InputStream ins = socket.getInputStream();
-            byte[] readAccept=new byte[Math.toIntExact(ClientConfigure.fileSegmentSize)];
+            byte[] readAccept=new byte[128];
             ins.read(readAccept);
             String temp=new String(readAccept);
-            //System.out.println("temp "+temp.split("\n")[0]);
             bytePosition+=Long.parseLong(temp.split("\n")[0]);
             TransferThread.setMap(absolutePath,bytePosition);
-            //System.out.println("bytePosition "+bytePosition);
         }
+        t=(bytePosition==file.length());
         in.close();
         return t;
     }

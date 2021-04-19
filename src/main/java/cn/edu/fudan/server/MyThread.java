@@ -35,7 +35,7 @@ public class MyThread extends Thread {
         InputStream is = socket.getInputStream();
         InputStreamReader isr =new InputStreamReader(is);
         BufferedReader br =new BufferedReader(isr);
-        byte[] buffer = new byte[128];
+        byte[] buffer = new byte[1024];
         is.read(buffer);
 
         String info =new String(buffer);
@@ -50,7 +50,7 @@ public class MyThread extends Thread {
         String temp= ServerConfigure.storage_directory.concat(fileName);
         receive_filePath=temp.substring(0,temp.length());
         Long startPosition= Long.parseLong(args[2]);
-        //System.out.println("startPosition");
+
         File receive_file=new File(receive_filePath);
         if(!receive_file.exists()){
             receive_file.createNewFile();
@@ -106,70 +106,5 @@ public class MyThread extends Thread {
         isr.close();
         is.close();
         ous.close();
-    }
-
-    private boolean readFileNameAndSize(Socket socket) throws IOException {
-        boolean t=true;
-        InputStream is = socket.getInputStream();
-        InputStreamReader isr =new InputStreamReader(is);
-        BufferedReader br =new BufferedReader(isr);
-        String info =br.readLine();
-        String[] args=info.split(" ");
-        String path = null;
-        String base = "G:/receiveFile/";
-        path = args[0];
-        fileSize=95;
-        String[] args1 = path.split("\\\\");
-        String fileName = args1[args1.length - 1];
-        //System.out.println("fileName "+fileName);
-        String temp= base.concat(fileName);
-        receive_filePath=temp.substring(0,temp.length());
-        //System.out.println("Hello,我是服务器，客户端说：" + info.split(" ")[0]+"\n");
-        System.out.println("filePath " + receive_filePath + "\n");
-        br.close();
-        isr.close();
-        //is.close();
-        return t;
-    }
-
-    public void readFromClient(Socket socket) throws IOException {
-        InputStream is = socket.getInputStream();
-        System.out.println("receice_filePath "+receive_filePath+" InputStream Size "+is.available());
-        InputStreamReader isr =new InputStreamReader(is);
-        BufferedReader br =new BufferedReader(isr);
-        FileOutputStream out=new FileOutputStream(receive_filePath);
-        //byte[] buffer = new byte[4096 * 5];
-        byte[] buffer = new byte[128];
-        int receive_size=0;
-        int readSize=0;
-        DataInputStream dis = new DataInputStream(new BufferedInputStream(is));
-        while((readSize=dis.read(buffer))!=-1){
-            receive_size+=readSize;
-            out.write(buffer,0,readSize);
-        }
-        out.close();
-        socket.shutdownInput();
-        br.close();
-        isr.close();
-
-        //is.close();
-        //socket.close();
-    }
-    private static boolean deleteFile(String absolutePath) {
-        boolean t=false;
-        File file=new File(absolutePath);
-        if (file.exists() && file.isFile()) {
-            if (file.delete()) {
-                System.out.println("删除单个文件" + absolutePath + "成功！");
-                t=true;
-            } else {
-                System.out.println("删除单个文件" + absolutePath + "失败！");
-                t=false;
-            }
-        } else {
-            System.out.println("删除单个文件失败：" + absolutePath + "不存在！");
-            t=false;
-        }
-        return t;
     }
 }
