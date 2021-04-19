@@ -105,6 +105,7 @@ public class MyThread extends Thread {
         br.close();
         isr.close();
         is.close();
+        ous.close();
     }
 
     private boolean readFileNameAndSize(Socket socket) throws IOException {
@@ -150,6 +151,7 @@ public class MyThread extends Thread {
         socket.shutdownInput();
         br.close();
         isr.close();
+
         //is.close();
         //socket.close();
     }

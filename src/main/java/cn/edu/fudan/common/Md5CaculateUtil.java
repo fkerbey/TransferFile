@@ -2,7 +2,6 @@ package cn.edu.fudan.common;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -20,7 +19,7 @@ public class Md5CaculateUtil {
         }
         return sbr.toString();
     }
-    public static String getFileMD5(String absolutePath) throws FileNotFoundException, NoSuchAlgorithmException {
+    public static String getFileMD5(String absolutePath) throws IOException, NoSuchAlgorithmException {
         File file = new File(absolutePath);
         String md5 = null;
         FileInputStream fileInputStream = new FileInputStream(file);
@@ -36,6 +35,7 @@ public class Md5CaculateUtil {
         }
         md5=toHexString(MD5.digest());
         //System.out.println(absolutePath+" "+md5+"\n");
+        fileInputStream.close();
         return md5;
     }
 }
