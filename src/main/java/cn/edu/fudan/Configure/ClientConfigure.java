@@ -23,7 +23,7 @@ public class ClientConfigure {
         } catch (IOException e1) {
             e1.printStackTrace();
         }
-        port=Integer.parseInt(p.getProperty("SERVER_PORT"));
+        port=Integer.parseInt(p.getProperty("CLIENT_PORT"));
         server_address=p.getProperty("SERVER_ADDRESS");
         snapshootDirectory=p.getProperty("SNAPSHOOT_DIRECTORY");
         fileSegmentSize=Long.parseLong(p.getProperty("FILE_SEGMENT_SIZE"));
