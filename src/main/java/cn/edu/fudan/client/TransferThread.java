@@ -46,7 +46,7 @@ public class TransferThread extends java.util.TimerTask {
         int count=0;
         while (file.exists() && files.length>0) {
             //System.out.println("count "+count);
-            ExecutorService fixedThreadPool = Executors.newFixedThreadPool(5);
+            ExecutorService fixedThreadPool = Executors.newFixedThreadPool(ClientConfigure.clientNTread);
             LinkedList<File> list = new LinkedList<File>();
             files = file.listFiles();
             for (File file2 : files) {

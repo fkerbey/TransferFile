@@ -13,6 +13,7 @@ public class ServerConfigure {
 
     public static String storage_directory;
     public static int port;
+    public static Integer server_NThread;
 
     public static void loadProperties() throws FileNotFoundException {
         InputStream inputStream = new FileInputStream("settings.properties");
@@ -24,5 +25,7 @@ public class ServerConfigure {
         }
         storage_directory = p.getProperty("STORAGE_DIRECTORY");
         port = Integer.parseInt(p.getProperty("SERVER_PORT"));
+
+        server_NThread=Integer.parseInt(p.getProperty("SERVER_NTHREAD"));
     }
 }

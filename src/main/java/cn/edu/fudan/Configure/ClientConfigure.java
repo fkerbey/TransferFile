@@ -14,6 +14,7 @@ public class ClientConfigure {
     public static String server_address;
     public static String snapshootDirectory;
     public static Long fileSegmentSize;
+    public static Integer clientNTread;
 
     public static void loadProperties() throws FileNotFoundException {
         InputStream inputStream = new FileInputStream("settings.properties");
@@ -27,5 +28,6 @@ public class ClientConfigure {
         server_address=p.getProperty("SERVER_ADDRESS");
         snapshootDirectory=p.getProperty("SNAPSHOOT_DIRECTORY");
         fileSegmentSize=Long.parseLong(p.getProperty("FILE_SEGMENT_SIZE"));
+        clientNTread=Integer.parseInt(p.getProperty("CLIENT_NTHREAD"));
     }
 }
