@@ -6,6 +6,7 @@ import cn.edu.fudan.common.Md5CaculateUtil;
 import java.io.*;
 import java.net.Socket;
 import java.security.NoSuchAlgorithmException;
+import java.util.Date;
 
 /**
  * Created by dell on 2017/7/24.
@@ -29,8 +30,7 @@ public class MyThread extends Thread {
             byte[] input = new byte[1024];
             ins.read(input);
             boolean t = writeFileToServer(absolutePath);
-            //System.out.println(new Date().toString() + " ------ finish send file " + new File(absolutePath).getName());
-
+            System.out.println(new Date().toString() + " ------ finish send file " + new File(absolutePath).getName());
             ins.read(input);
             //System.out.println("check md5 "+MD5+" "+new String(input)+"\n");
             if (t) {
@@ -74,7 +74,7 @@ public class MyThread extends Thread {
             //System.out.println("temp "+temp.split("\n")[0]);
             bytePosition+=Long.parseLong(temp.split("\n")[0]);
             TransferThread.setMap(absolutePath,bytePosition);
-            System.out.println("bytePosition "+bytePosition);
+            //System.out.println("bytePosition "+bytePosition);
         }
         in.close();
         return t;
